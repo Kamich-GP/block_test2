@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Вопросы</title>
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css">
+  <style>
+    .CodeMirror {
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+<header class="d-flex justify-content-center py-3">
+  <ul class="nav nav-pills">
+    <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Блок тест по 3 блоку</a></li>
+  </ul>
+</header>
+
+<hr>
+
+<div class="container">
+  <div class="container px-4 py-5" id="featured-3">
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-1">
+
+      <form method="post">
+        {% csrf_token %}
+          <div class="mb-4">
+          <input class="form-control" type="text" name="st_name" placeholder="Ваше имя">
+          <input class="form-control" type="number" name="st_group" placeholder="Номер потока (можно посмотреть в названии группы Telegram)">
+          </div>
+          <h2 class="pb-2 border-bottom">Вопросы</h2>
+        {% for q in questions %}
+          <div class="mb-4">
+            <p style="white-space: pre-wrap;">Вопрос {{ q }}</p>
+
+            {% if "пример" in q.name %}
+              <div class="mb-3">
+                <label for="code_{{ q.id }}" class="form-label">Ваш пример кода:</label>
+                <textarea id="code_{{ q.id }}" name="answer_{{ q.id }}" class="form-control d-none"></textarea>
+                <div id="editor_{{ q.id }}" class="border rounded"></div>
+              </div>
+            {% else %}
+              <div class="mb-3">
+                <label for="answer_{{ q.id }}" class="form-label">Ваш ответ:</label>
+                <textarea id="answer_{{ q.id }}" name="answer_{{ q.id }}" class="form-control" rows="5"></textarea>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Отправить все ответы</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/python/python.min.js"></script>
+
+<script>
+  {% for q in questions %}
+    {% if "пример" in q.name %}
+      const editor_{{ q.id }} = CodeMirror(document.getElementById("editor_{{ q.id }}"), {
+        mode: "python",
+        lineNumbers: true,
+        theme: "default",
+        value: ""
+      });
+
+      document.querySelector("form").addEventListener("submit", function () {
+        document.getElementById("code_{{ q.id }}").value = editor_{{ q.id }}.getValue();
+      });
+    {% endif %}
+  {% endfor %}
+</script>
+</body>
+</html>
